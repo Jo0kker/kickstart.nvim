@@ -415,6 +415,7 @@ require('lazy').setup({
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
+      'jose-elias-alvarez/null-ls.nvim',
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -577,7 +578,22 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
-
+        intelephense = {
+          settings = {
+            intelephense = {
+              files = {
+                maxSize = 5000000; -- Augmente si nécessaire pour de grands projets
+              }
+            }
+          }
+        },
+        
+        tsserver = {
+          on_attach = function(client, bufnr)
+            client.resolved_capabilities.document_formatting = false -- Désactiver le formatage par LSP si tu utilises Prettier
+          end
+        },
+        
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -617,6 +633,7 @@ require('lazy').setup({
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
+            server.on_attach = on_attach
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
           end,
